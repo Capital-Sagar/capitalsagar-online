@@ -241,3 +241,21 @@ footer {
     min-height: 420px;
   }
 }
+.search-message {
+  grid-column: 1 / -1;
+  padding: 12px 16px;
+  border-radius: 7px;
+  background: #eff6ff;
+  color: #123c69;
+  font-size: 14px;
+  text-align: center;
+}
+.search-message {
+  grid-column: 1 / -1;
+  padding: 12px 16px;
+  border-radius: 7px;
+  background: #eff6ff;
+  color: #123c69;
+  font-size: 14px;
+  text-align: center;
+}

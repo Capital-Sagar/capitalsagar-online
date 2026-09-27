@@ -1,37 +1,42 @@
-import { useEffect, useState } from 'react'
-import './App.css'
+import { useEffect, useState } from "react";
 
 function App() {
-  const [message, setMessage] = useState('Connecting to backend...')
-  const [error, setError] = useState('')
+  const [users, setUsers] = useState([]);
+  const [message, setMessage] = useState("Loading users...");
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/health')
+    fetch("/api/users")
       .then((response) => {
         if (!response.ok) {
-          throw new Error('Backend returned an error')
+          throw new Error("Failed to fetch users");
         }
-        return response.json()
+        return response.json();
       })
       .then((data) => {
-        setMessage(data.message)
+        setUsers(data);
+        setMessage(`Users loaded successfully: ${data.length}`);
       })
-      .catch(() => {
-        setError('Could not connect to the backend')
-      })
-  }, [])
+      .catch((error) => {
+        console.error(error);
+        setMessage("Could not load users");
+      });
+  }, []);
 
   return (
     <div>
       <h1>Capital Sagar</h1>
 
-      {error ? (
-        <p>{error}</p>
-      ) : (
-        <p>{message}</p>
-      )}
+      <p>{message}</p>
+
+      {users.map((user) => (
+        <div key={user.id}>
+          <p>
+            {user.fullname} — {user.email}
+          </p>
+        </div>
+      ))}
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

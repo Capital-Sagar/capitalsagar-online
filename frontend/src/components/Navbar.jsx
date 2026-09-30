@@ -9,22 +9,30 @@ function Navbar() {
         </Link>
 
         <div className="navbar-nav">
-          <Link className="nav-link" to="/">
-            Home
-          </Link>
+  <Link className="nav-link" to="/">
+    Home
+  </Link>
 
-          <Link className="nav-link" to="/rooms">
-            Rooms
-          </Link>
+  <Link className="nav-link" to="/rooms">
+    Rooms
+  </Link>
 
-          <Link className="nav-link" to="/bookings">
-            Bookings
-          </Link>
+  <Link className="nav-link" to="/bookings">
+    Bookings
+  </Link>
 
-          <Link className="nav-link" to="/dashboard">
-            Dashboard
-          </Link>
-        </div>
+  <Link className="nav-link" to="/dashboard">
+    Dashboard
+  </Link>
+
+  <Link className="nav-link" to="/login">
+    Login
+  </Link>
+
+  <Link className="nav-link" to="/register">
+    Register
+  </Link>
+</div>
       </div>
     </nav>
   )

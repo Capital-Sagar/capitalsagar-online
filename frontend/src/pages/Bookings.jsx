@@ -14,6 +14,13 @@ function Bookings() {
   })
 
   useEffect(() => {
+    const user = localStorage.getItem('user')
+
+    if (!user) {
+      window.location.href = '/login'
+      return
+    }
+
     loadRooms()
     loadBookings()
   }, [])
@@ -116,7 +123,7 @@ function Bookings() {
   }
 
   return (
-    <div>
+    <div className="container mt-4">
       <h1>Bookings</h1>
 
       <form onSubmit={handleBooking}>
@@ -210,33 +217,27 @@ function Bookings() {
             </p>
 
             <p>
-              <strong>Room:</strong>{' '}
-              {booking.rooms?.room_number}
+              <strong>Room:</strong> {booking.rooms?.room_number}
             </p>
 
             <p>
-              <strong>Type:</strong>{' '}
-              {booking.rooms?.room_type}
+              <strong>Type:</strong> {booking.rooms?.room_type}
             </p>
 
             <p>
-              <strong>Check In:</strong>{' '}
-              {booking.check_in_date}
+              <strong>Check In:</strong> {booking.check_in_date}
             </p>
 
             <p>
-              <strong>Check Out:</strong>{' '}
-              {booking.check_out_date}
+              <strong>Check Out:</strong> {booking.check_out_date}
             </p>
 
             <p>
-              <strong>Amount:</strong> ₹
-              {booking.total_amount}
+              <strong>Amount:</strong> ₹{booking.total_amount}
             </p>
 
             <p>
-              <strong>Status:</strong>{' '}
-              {booking.booking_status}
+              <strong>Status:</strong> {booking.booking_status}
             </p>
           </div>
         ))

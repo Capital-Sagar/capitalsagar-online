@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 
 function Dashboard() {
+  const user = JSON.parse(localStorage.getItem('user'))
+
   const [stats, setStats] = useState({
     totalRooms: 0,
     availableRooms: 0,
@@ -10,6 +12,13 @@ function Dashboard() {
   })
 
   useEffect(() => {
+    const loggedInUser = localStorage.getItem('user')
+
+    if (!loggedInUser) {
+      window.location.href = '/login'
+      return
+    }
+
     loadDashboardData()
   }, [])
 
@@ -49,6 +58,28 @@ function Dashboard() {
   return (
     <div className="container mt-4">
       <h1 className="mb-4">Admin Dashboard</h1>
+
+      <div className="card mb-4 shadow">
+        <div className="card-body">
+          <h4>Logged In User</h4>
+
+          <p>
+            <strong>Name:</strong> {user?.fullname}
+          </p>
+
+          <p>
+            <strong>Email:</strong> {user?.email}
+          </p>
+
+          <p>
+            <strong>User ID:</strong> {user?.id}
+          </p>
+        </div>
+      </div>
+
+      <p>
+        Welcome, <strong>{user?.fullname}</strong>
+      </p>
 
       <div className="row g-4">
 

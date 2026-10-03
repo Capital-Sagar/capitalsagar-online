@@ -14,15 +14,33 @@ function Bookings() {
   })
 
   useEffect(() => {
-    const user = localStorage.getItem('user')
+    const storedUser = localStorage.getItem('user')
 
-    if (!user) {
+    if (!storedUser) {
+      window.location.href = '/login'
+      return
+    }
+
+    let user
+
+    try {
+      user = JSON.parse(storedUser)
+    } catch (error) {
+      console.error('Invalid user data:', error)
+      localStorage.removeItem('user')
+      window.location.href = '/login'
+      return
+    }
+
+    if (!user?.id) {
+      alert('User information is missing. Please login again.')
+      localStorage.removeItem('user')
       window.location.href = '/login'
       return
     }
 
     loadRooms()
-    loadBookings()
+    loadBookings(user.id)
   }, [])
 
   const loadRooms = async () => {
@@ -38,21 +56,20 @@ function Bookings() {
     }
   }
 
-  const loadBookings = async () => {
-    const { data, error } = await supabase
-      .from('bookings')
-      .select(`
-        *,
-        rooms (
-          room_number,
-          room_type
-        )
-      `)
-      .order('id', { ascending: false })
+  const loadBookings = async (userId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/bookings/user/${userId}`
+      )
 
-    if (!error) {
+      if (!response.ok) {
+        throw new Error('Failed to load bookings')
+      }
+
+      const data = await response.json()
+
       setBookings(data || [])
-    } else {
+    } catch (error) {
       console.error('Failed to load bookings:', error)
     }
   }
@@ -147,7 +164,7 @@ function Bookings() {
 
     alert('Booking created successfully')
 
-    await loadBookings()
+    await loadBookings(user.id)
     await loadRooms()
 
     setFormData({
@@ -251,35 +268,37 @@ function Bookings() {
             }}
           >
             <p>
-              <strong>Guest:</strong> {booking.guest_name}
+              <strong>Guest:</strong> {booking.guestName}
             </p>
 
             <p>
-              <strong>Email:</strong> {booking.guest_email}
+              <strong>Email:</strong> {booking.guestEmail}
             </p>
 
             <p>
-              <strong>Room:</strong> {booking.rooms?.room_number}
+              <strong>Room:</strong>{' '}
+              {booking.room?.roomNumber || booking.roomId}
             </p>
 
             <p>
-              <strong>Type:</strong> {booking.rooms?.room_type}
+              <strong>Type:</strong>{' '}
+              {booking.room?.roomType || 'Room'}
             </p>
 
             <p>
-              <strong>Check In:</strong> {booking.check_in_date}
+              <strong>Check In:</strong> {booking.checkInDate}
             </p>
 
             <p>
-              <strong>Check Out:</strong> {booking.check_out_date}
+              <strong>Check Out:</strong> {booking.checkOutDate}
             </p>
 
             <p>
-              <strong>Amount:</strong> ₹{booking.total_amount}
+              <strong>Amount:</strong> ₹{booking.totalAmount}
             </p>
 
             <p>
-              <strong>Status:</strong> {booking.booking_status}
+              <strong>Status:</strong> {booking.bookingStatus}
             </p>
           </div>
         ))

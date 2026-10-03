@@ -33,6 +33,8 @@ function Bookings() {
 
     if (!error) {
       setRooms(data || [])
+    } else {
+      console.error('Failed to load rooms:', error)
     }
   }
 
@@ -50,6 +52,8 @@ function Bookings() {
 
     if (!error) {
       setBookings(data || [])
+    } else {
+      console.error('Failed to load bookings:', error)
     }
   }
 
@@ -62,6 +66,33 @@ function Bookings() {
 
   const handleBooking = async (e) => {
     e.preventDefault()
+
+    const storedUser = localStorage.getItem('user')
+
+    if (!storedUser) {
+      alert('Please login again')
+      window.location.href = '/login'
+      return
+    }
+
+    let user
+
+    try {
+      user = JSON.parse(storedUser)
+    } catch (error) {
+      console.error('Invalid user data:', error)
+      alert('Session data is invalid. Please login again.')
+      localStorage.removeItem('user')
+      window.location.href = '/login'
+      return
+    }
+
+    if (!user?.id) {
+      alert('User information is missing. Please login again.')
+      localStorage.removeItem('user')
+      window.location.href = '/login'
+      return
+    }
 
     const selectedRoom = rooms.find(
       (room) => room.id === Number(formData.room_id)
@@ -84,7 +115,7 @@ function Bookings() {
       .from('bookings')
       .insert([
         {
-          user_id: 1,
+          user_id: user.id,
           room_id: Number(formData.room_id),
           guest_name: formData.guest_name,
           guest_email: formData.guest_email,
@@ -96,17 +127,23 @@ function Bookings() {
       ])
 
     if (error) {
-      console.error(error)
+      console.error('Booking error:', error)
       alert('Booking failed')
       return
     }
 
-    await supabase
+    const { error: roomUpdateError } = await supabase
       .from('rooms')
       .update({
         status: 'booked',
       })
       .eq('id', Number(formData.room_id))
+
+    if (roomUpdateError) {
+      console.error('Room status update error:', roomUpdateError)
+      alert('Booking created, but room status could not be updated.')
+      return
+    }
 
     alert('Booking created successfully')
 
@@ -142,7 +179,8 @@ function Bookings() {
           ))}
         </select>
 
-        <br /><br />
+        <br />
+        <br />
 
         <input
           type="text"
@@ -153,7 +191,8 @@ function Bookings() {
           required
         />
 
-        <br /><br />
+        <br />
+        <br />
 
         <input
           type="email"
@@ -164,7 +203,8 @@ function Bookings() {
           required
         />
 
-        <br /><br />
+        <br />
+        <br />
 
         <input
           type="date"
@@ -174,7 +214,8 @@ function Bookings() {
           required
         />
 
-        <br /><br />
+        <br />
+        <br />
 
         <input
           type="date"
@@ -184,7 +225,8 @@ function Bookings() {
           required
         />
 
-        <br /><br />
+        <br />
+        <br />
 
         <button type="submit">
           Book Room

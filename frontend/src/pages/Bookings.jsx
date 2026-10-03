@@ -128,52 +128,57 @@ function Bookings() {
       return
     }
 
-    const { error } = await supabase
-      .from('bookings')
-      .insert([
-        {
-          user_id: user.id,
-          room_id: Number(formData.room_id),
-          guest_name: formData.guest_name,
-          guest_email: formData.guest_email,
-          check_in_date: formData.check_in_date,
-          check_out_date: formData.check_out_date,
-          total_amount: selectedRoom.price_per_night,
-          booking_status: 'confirmed',
-        },
-      ])
+    const totalAmount =
+      Number(selectedRoom.price_per_night)
 
-    if (error) {
+    const bookingData = {
+      userId: Number(user.id),
+      roomId: Number(formData.room_id),
+      guestName: formData.guest_name,
+      guestEmail: formData.guest_email,
+      checkInDate: formData.check_in_date,
+      checkOutDate: formData.check_out_date,
+      totalAmount: totalAmount,
+      bookingStatus: 'confirmed',
+    }
+
+    try {
+      const response = await fetch(
+        'http://localhost:8080/api/bookings',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(bookingData),
+        }
+      )
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('Booking API error:', errorText)
+        throw new Error('Booking failed')
+      }
+
+      await response.json()
+
+      alert('Booking created successfully')
+
+      await loadBookings(user.id)
+
+      setFormData({
+        room_id: '',
+        guest_name: '',
+        guest_email: '',
+        check_in_date: '',
+        check_out_date: '',
+      })
+
+      await loadRooms()
+    } catch (error) {
       console.error('Booking error:', error)
       alert('Booking failed')
-      return
     }
-
-    const { error: roomUpdateError } = await supabase
-      .from('rooms')
-      .update({
-        status: 'booked',
-      })
-      .eq('id', Number(formData.room_id))
-
-    if (roomUpdateError) {
-      console.error('Room status update error:', roomUpdateError)
-      alert('Booking created, but room status could not be updated.')
-      return
-    }
-
-    alert('Booking created successfully')
-
-    await loadBookings(user.id)
-    await loadRooms()
-
-    setFormData({
-      room_id: '',
-      guest_name: '',
-      guest_email: '',
-      check_in_date: '',
-      check_out_date: '',
-    })
   }
 
   return (
